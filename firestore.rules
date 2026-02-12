@@ -1,0 +1,73 @@
+// firestore.rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: check if authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Helper: check if user is admin (Vikram or Yulissa)
+    function isAdmin() {
+      return isAuth() && (
+        request.auth.token.email == 'vikram@teamflow.dev' ||
+        request.auth.token.email == 'yulissa@teamflow.dev'
+      );
+    }
+
+    // Helper: check if user owns the document
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    // Work Sessions
+    match /workSessions/{sessionId} {
+      allow read: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // Tasks — all team can read and create, only admin or creator can update/delete
+    match /tasks/{taskId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isAdmin() || (isAuth() && resource.data.createdBy == request.auth.uid)
+                    || (isAuth() && resource.data.assignedTo == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // Weekly Reports
+    match /weeklyReports/{reportId} {
+      allow read: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid
+                    && resource.data.status != 'approved');
+      allow delete: if isAdmin();
+    }
+
+    // GitHub Stats
+    match /githubStats/{userId} {
+      allow read: if isAuth();
+      allow write: if isAdmin() || (isAuth() && request.auth.uid == userId);
+    }
+
+    // Milestones — admin only create/update, all can read
+    match /milestones/{milestoneId} {
+      allow read: if isAuth();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Productivity Scores — all read, admin write
+    match /productivityScores/{scoreId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // Audit Logs — admin only
+    match /auditLogs/{logId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
