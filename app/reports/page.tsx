@@ -7,6 +7,7 @@ import { TEAM_MEMBERS, getMemberById } from '@/lib/team';
 import { submitReport, subscribeReports, updateReport } from '@/lib/db';
 import type { WeeklyReport } from '@/types';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
+export const dynamic = "force-dynamic";
 
 const STATUS_COLORS: Record<string, string> = {
   draft: '#444', submitted: '#00d4ff', approved: '#00ff88', revision: '#ff6b35'

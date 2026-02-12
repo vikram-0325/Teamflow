@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { TEAM_MEMBERS } from '@/lib/team';
 import { updateGitStats, getAllGitStats } from '@/lib/db';
 import type { GitStats } from '@/types';
+export const dynamic = "force-dynamic";
 
 const DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
 

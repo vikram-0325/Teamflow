@@ -8,6 +8,7 @@ import { TEAM_MEMBERS, getMemberById } from '@/lib/team';
 import { subscribeToSessions, clockOut } from '@/lib/db';
 import type { WorkSession } from '@/types';
 import { format, differenceInMinutes } from 'date-fns';
+export const dynamic = "force-dynamic";
 
 export default function AdminSessionsPage() {
   const { isAdmin, loading } = useAuth();

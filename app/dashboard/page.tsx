@@ -7,6 +7,7 @@ import { TEAM_MEMBERS, getMemberById } from '@/lib/team';
 import { clockIn, clockOut, subscribeToSessions, subscribePresence, getAllGitStats } from '@/lib/db';
 import type { WorkSession, GitStats } from '@/types';
 import { format, formatDistanceToNow } from 'date-fns';
+export const dynamic = "force-dynamic";
 
 function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
   return (

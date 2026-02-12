@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import LoginPage from './login/page';
+export const dynamic = "force-dynamic";
 
 export default function RootPage() {
   const { user, loading } = useAuth();

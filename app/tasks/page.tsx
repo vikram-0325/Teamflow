@@ -7,6 +7,7 @@ import { TEAM_MEMBERS } from '@/lib/team';
 import { subscribeTasks, createTask, updateTaskStatus, deleteTask } from '@/lib/db';
 import type { Task } from '@/types';
 import { format } from 'date-fns';
+export const dynamic = "force-dynamic";
 
 const COLUMNS: { id: Task['status']; label: string; color: string }[] = [
   { id: 'backlog', label: 'BACKLOG', color: '#444' },

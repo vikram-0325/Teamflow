@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { TEAM_MEMBERS } from '@/lib/team';
 import { subscribeReports, getAllGitStats, getAllSessions } from '@/lib/db';
 import type { WeeklyReport, GitStats, WorkSession } from '@/types';
+export const dynamic = "force-dynamic";
 
 export default function AdminScoresPage() {
   const { isAdmin, loading } = useAuth();

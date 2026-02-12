@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { TEAM_MEMBERS } from '@/lib/team';
+export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');

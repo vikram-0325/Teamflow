@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { TEAM_MEMBERS } from '@/lib/team';
 import { subscribeReports, getAllGitStats, getAllSessions } from '@/lib/db';
 import type { WeeklyReport, GitStats, WorkSession } from '@/types';
+export const dynamic = "force-dynamic";
 
 const LEVEL_CONFIG = [
   { name: 'BRONZE',   minXP: 0,   maxXP: 500,  color: '#cd7f32', icon: '🥉' },

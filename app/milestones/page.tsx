@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { subscribeMilestones, createMilestone, updateMilestone } from '@/lib/db';
 import type { Milestone } from '@/types';
 import { format, differenceInDays } from 'date-fns';
+export const dynamic = "force-dynamic";
 
 const STATUS_MAP = {
   on_track: { label: 'ON TRACK', color: '#00ff88' },
