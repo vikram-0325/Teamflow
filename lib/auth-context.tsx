@@ -41,6 +41,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     return unsubscribe;
   }, []);
+  // Fallback: stop loading after 5 seconds no matter what
+useEffect(() => {
+  const timeout = setTimeout(() => setLoading(false), 5000);
+  return () => clearTimeout(timeout);
+}, []);
+
 
   const signIn = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
