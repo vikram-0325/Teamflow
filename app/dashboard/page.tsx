@@ -86,29 +86,58 @@ export default function DashboardPage() {
   const [clockInTime, setClockInTime] = useState<string | null>(null);
   const [showClockIn, setShowClockIn] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [today, setToday] = useState(new Date());
+  const [today] = useState(new Date());
 
+  // Subscribe to sessions and presence
   useEffect(() => {
     const unsubSessions = subscribeToSessions(setSessions);
     const unsubPresence = subscribePresence(setPresence);
     getAllGitStats().then(setGitStats);
-    return () => { unsubSessions(); };
+    return () => {
+      unsubSessions();
+      unsubPresence();
+    };
   }, []);
 
-  // Timer
-// Restore active session on load
-useEffect(() => {
-  const activeSessions = sessions.filter(s => !s.clockOut && s.userId === member?.id);
-  if (activeSessions.length > 0) {
-    const active = activeSessions[0];
-    setActiveSessionId(active.id);
-    setClockInTime(active.clockIn);
-  } else {
-    setActiveSessionId(null);
-    setClockInTime(null);
-  }
-}, [sessions, member]);
+  // Restore active session on load/refresh
+  useEffect(() => {
+    const activeSessions = sessions.filter(s => !s.clockOut && s.userId === member?.id);
+    if (activeSessions.length > 0) {
+      const active = activeSessions[0];
+      setActiveSessionId(active.id);
+      setClockInTime(active.clockIn);
+    } else {
+      setActiveSessionId(null);
+      setClockInTime(null);
+      setElapsed(0);
+    }
+  }, [sessions, member]);
 
+  // Timer tick
+  useEffect(() => {
+    if (activeSessionId && clockInTime) {
+      timerRef.current = setInterval(() => {
+        setElapsed(Math.floor((Date.now() - new Date(clockInTime).getTime()) / 1000));
+      }, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [activeSessionId, clockInTime]);
+
+  // Clock In handler
+  const handleClockIn = async () => {
+    if (!member || !taskDesc.trim()) return;
+    const id = await clockIn(member.id, member.name, taskDesc);
+    setActiveSessionId(id);
+    setClockInTime(new Date().toISOString());
+    setShowClockIn(false);
+    setTaskDesc('');
+  };
+
+  // Clock Out handler
   const handleClockOut = async () => {
     if (!member || !activeSessionId) return;
     await clockOut(activeSessionId, member.id);
@@ -186,7 +215,7 @@ useEffect(() => {
             sub="Sessions running" color="#ff6b35"/>
         </div>
 
-        {/* Time Tracker — Your personal log */}
+        {/* Time Tracker */}
         <div className="glass rounded-2xl p-6 mb-8 glow-border">
           <div className="font-orbitron text-xs tracking-widest mb-5" style={{ color: '#00d4ff' }}>
             // YOUR SESSION LOG — TODAY
@@ -259,7 +288,7 @@ useEffect(() => {
                 <tbody>
                   {activeSessions.map(s => {
                     const m = getMemberById(s.userId);
-                    const elapsed = Math.floor((Date.now() - new Date(s.clockIn).getTime()) / 60000);
+                    const elapsedMin = Math.floor((Date.now() - new Date(s.clockIn).getTime()) / 60000);
                     return (
                       <tr key={s.id}>
                         <td>
@@ -276,7 +305,7 @@ useEffect(() => {
                         </td>
                         <td className="font-mono text-sm">{format(new Date(s.clockIn), 'HH:mm')}</td>
                         <td className="font-mono text-sm" style={{ color: '#00d4ff' }}>
-                          {Math.floor(elapsed/60)}h {elapsed%60}m
+                          {Math.floor(elapsedMin/60)}h {elapsedMin%60}m
                         </td>
                       </tr>
                     );
