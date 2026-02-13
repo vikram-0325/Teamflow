@@ -27,13 +27,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [member, setMember] = useState<TeamMember | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Fallback: stop loading after 5 seconds no matter what
+  useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 5000);
+    return () => clearTimeout(timeout);
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
         const m = TEAM_MEMBERS.find(t => t.email === u.email) || null;
         setMember(m);
-        if (m) await updatePresence(m.id, 'online');
+        if (m) {
+          try {
+            await updatePresence(m.id, 'online');
+            console.log('Presence updated for', m.id);
+          } catch (err) {
+            console.error('Presence failed:', err);
+          }
+        }
       } else {
         setMember(null);
       }
@@ -41,28 +54,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     return unsubscribe;
   }, []);
-  // Fallback: stop loading after 5 seconds no matter what
-useEffect(() => {
-  const timeout = setTimeout(() => setLoading(false), 5000);
-  return () => clearTimeout(timeout);
-}, []);
-
 
   const signIn = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
-const signOut = async () => {
-  if (member) {
-    try {
-      await updatePresence(member.id, 'online');
-      console.log('Presence updated for', member.id);
-    } catch (err) {
-      console.error('Presence failed:', err);
+  const signOut = async () => {
+    if (member) {
+      try {
+        await updatePresence(member.id, 'offline');
+        console.log('Presence updated offline for', member.id);
+      } catch (err) {
+        console.error('Presence failed:', err);
+      }
     }
-  }
-  await firebaseSignOut(auth);
-};
+    await firebaseSignOut(auth);
+  };
 
   return (
     <AuthContext.Provider value={{
