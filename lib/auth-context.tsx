@@ -46,10 +46,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
-  const signOut = async () => {
-    if (member) await updatePresence(member.id, 'offline');
-    await firebaseSignOut(auth);
-  };
+const signOut = async () => {
+  if (member) {
+    try {
+      await updatePresence(member.id, 'online');
+      console.log('Presence updated for', member.id);
+    } catch (err) {
+      console.error('Presence failed:', err);
+    }
+  }
+  await firebaseSignOut(auth);
+};
 
   return (
     <AuthContext.Provider value={{

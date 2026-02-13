@@ -96,25 +96,18 @@ export default function DashboardPage() {
   }, []);
 
   // Timer
-  useEffect(() => {
-    if (activeSessionId && clockInTime) {
-      timerRef.current = setInterval(() => {
-        setElapsed(Math.floor((Date.now() - new Date(clockInTime).getTime()) / 1000));
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [activeSessionId, clockInTime]);
-
-  const handleClockIn = async () => {
-    if (!member || !taskDesc.trim()) return;
-    const id = await clockIn(member.id, member.name, taskDesc);
-    setActiveSessionId(id);
-    setClockInTime(new Date().toISOString());
-    setShowClockIn(false);
-    setTaskDesc('');
-  };
+// Restore active session on load
+useEffect(() => {
+  const activeSessions = sessions.filter(s => !s.clockOut && s.userId === member?.id);
+  if (activeSessions.length > 0) {
+    const active = activeSessions[0];
+    setActiveSessionId(active.id);
+    setClockInTime(active.clockIn);
+  } else {
+    setActiveSessionId(null);
+    setClockInTime(null);
+  }
+}, [sessions, member]);
 
   const handleClockOut = async () => {
     if (!member || !activeSessionId) return;

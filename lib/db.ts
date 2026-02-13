@@ -11,12 +11,12 @@ import type { WorkSession, Task, WeeklyReport, GitStats, Milestone, Productivity
 // ─── WORK SESSIONS ───────────────────────────────────────────────────────────
 
 export async function clockIn(userId: string, userName: string, taskDescription: string) {
-  const session: Omit<WorkSession, 'id'> = {
-    userId, userName, taskDescription,
-    clockIn: new Date().toISOString(),
-    date: new Date().toISOString().split('T')[0],
-    createdAt: new Date().toISOString(),
-  };
+ const session = {
+  userId, userName, taskDescription,
+  clockIn: new Date().toISOString(),
+  date: new Date().toISOString().split('T')[0],
+  createdAt: serverTimestamp(),
+};
   const docRef = await addDoc(collection(db, 'workSessions'), session);
   await updatePresence(userId, 'working', taskDescription);
   return docRef.id;
